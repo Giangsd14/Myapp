@@ -7,7 +7,6 @@ from .config import settings
 
 # openssl rand -hex 32 #Linux
 # SECRET_KEY = secrets.token_urlsafe(32)
-# SECRET_KEY = "eed0799941cfa0737b04338f50c3e2a3053428911992f0e7fd84bd72edfa834a"
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
