@@ -1,10 +1,11 @@
+from datetime import date
 from pydantic import BaseModel
 
 class UserBase(BaseModel):
     user_name: str
     user_pass: str
     email: str
-    cre_at: int = 2024
+    cre_at: date
 
 class MapBase(BaseModel):
     name: str
@@ -12,8 +13,8 @@ class MapBase(BaseModel):
     author_id: int
     desc: str
     img: str
-    cre_at: int = 2024
-    upd_at: str | None = None
+    cre_at: date 
+    upd_at: date | None = None
     share: bool = False
 
 
@@ -41,7 +42,7 @@ class ShowUser(BaseModel):
     id: int
     user_name: str
     email: str
-    cre_at: str
+    cre_at: date
 
     class config:
         from_attribute = True
