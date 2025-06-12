@@ -43,3 +43,22 @@ async def delete_account(db: db_depend, password: str, get_current_user):
     await db.delete(user)
     await db.commit()
     return {"detail": "Tài khoản đã bị xóa"}
+
+
+async def update_password(db: db_depend, password: str, get_current_user, data: schemas.CreateUser):
+    user_instance = User(**data.model_dump())
+    stmt = select(User).where(User.user_name == get_current_user.username)
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid username!")
+    if not Hash.verify(password, user.user_pass):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Incorrect password!")
+    
+    user.user_pass = Hash.bcrypt(user_instance.user_pass)
+    await db.commit()
+    await db.refresh(user)
+    return {
+    "detail": "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.",
+    "force_logout": True}
+    

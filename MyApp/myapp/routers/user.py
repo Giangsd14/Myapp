@@ -29,3 +29,7 @@ async def get_user(db: db_depend, id: int):
 @router.delete("/")
 async def delete_account(db: db_depend, password: str, get_current_user: current_user):
     return await user.delete_account(db, password, get_current_user)
+
+@router.put("/", response_model=schemas.MessageResponse)
+async def update_password(db: db_depend, password: str, get_current_user: current_user, data: schemas.CreateUser):
+    return await user.update_password(db, password, get_current_user, data)

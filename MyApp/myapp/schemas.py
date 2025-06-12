@@ -1,6 +1,22 @@
 from datetime import date
 from pydantic import BaseModel
 
+
+class Login(BaseModel):
+    username: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+class MessageResponse(BaseModel):
+    detail: str
+    force_logout: bool
+
 class UserBase(BaseModel):
     user_name: str
     user_pass: str
@@ -54,20 +70,6 @@ class ShowMap(BaseModel):
 
     class config:
         orm_mode = True
-
-
-class Login(BaseModel):
-    username: str
-    password: str
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: str | None = None
 
 
 class Template(BaseModel):
