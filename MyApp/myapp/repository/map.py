@@ -13,6 +13,7 @@ async def get_all_map(db: db_depend):
 
 async def get_map(db: db_depend, id: int):
     map_query_set = await services.get_map(db, id)
+
     if not map_query_set:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid map hihi!")
     return map_query_set
