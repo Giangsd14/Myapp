@@ -1,14 +1,15 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
+from __future__ import annotations
+from sqlalchemy import Column, ForeignKey, String, Table
 from .database import Base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from datetime import datetime
 
 
 
 class BaseModel(Base):
     __abstract__ = True #no create table
-    __allow_unmapped__ = True #no use mapped
 
-    id = Column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
 
 
 user_map = Table(
@@ -21,51 +22,51 @@ user_map = Table(
 class User(BaseModel):
     __tablename__ = 'User'
 
-    user_name = Column(String, index=True)
-    user_pass = Column(String, index=True)
-    email = Column(String, index=True)
-    cre_at = Column(String)
+    user_name: Mapped[str] = mapped_column(String, index=True)
+    user_pass: Mapped[str] = mapped_column(String, index=True)
+    email: Mapped[str] =mapped_column(String, index=True)
+    cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
-    maps = relationship("Map", secondary=user_map, back_populates="users")
+    maps: Mapped[list[Map]] = relationship(secondary=user_map, back_populates="users")
 
 
 class Map(BaseModel):
     __tablename__ = 'Map'
 
-    author = Column(String, index=True)
-    author_id = Column(Integer, ForeignKey("User.id"), index=True)
-    name = Column(String, index=True)
-    desc = Column(String, index=True)
-    img = Column(String, index=True)
-    cre_at = Column(String)
-    upd_at = Column(String)
-    share = Column(Boolean)
+    author: Mapped[str] = mapped_column(String, index=True)
+    author_id: Mapped[int] = mapped_column(ForeignKey("User.id"), index=True)
+    name: Mapped[str] = mapped_column(String, index=True)
+    desc: Mapped[str] = mapped_column(String)
+    img: Mapped[str] = mapped_column(String)
+    cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    upd_at: Mapped[datetime] = mapped_column(nullable=True, default=None)
+    share: Mapped[bool] = mapped_column(default=False)
 
-    users = relationship("User", secondary=user_map, back_populates="maps")
-    templates = relationship("Template", back_populates="maps", uselist=False, cascade="all, delete-orphan")
-    points = relationship("Point", back_populates="maps", uselist=False, cascade="all, delete-orphan")
+    users: Mapped[list[User]] = relationship(secondary=user_map, back_populates="maps")
+    templates: Mapped[list[Template]] = relationship(back_populates="maps", uselist=False, cascade="all, delete-orphan")
+    points: Mapped[list[Point]] = relationship(back_populates="maps", uselist=False, cascade="all, delete-orphan")
 
 
 class Template(BaseModel):
     __tablename__ = 'Template'
 
-    map_id = Column(Integer, ForeignKey("Map.id"), primary_key=True)
-    no_like = Column(Integer, index=True)
+    map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"), primary_key=True)
+    no_like: Mapped[int] = mapped_column(index=True)
 
-    maps = relationship("Map", back_populates="templates")
+    maps: Mapped[list[Map]] = relationship(back_populates="templates")
 
 
 class Point(BaseModel):
     __tablename__ = 'Point'
 
-    name = Column(String, index=True)
-    geom = Column(String, index=True)
-    desc = Column(String, index=True)
-    img = Column(String, index=True)
-    cre_at = Column(String)
-    upd_at = Column(String)
-    map_id = Column(Integer, ForeignKey("Map.id"))
+    name: Mapped[str] = mapped_column(String, index=True)
+    geom: Mapped[str] = mapped_column(String)
+    desc: Mapped[str] = mapped_column(String)
+    img: Mapped[str] = mapped_column(String)
+    cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    upd_at: Mapped[datetime] = mapped_column(nullable=True, default=None)
+    map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"), primary_key=True)
 
-    maps = relationship("Map", back_populates="points")
+    maps: Mapped[list[Map]] = relationship(back_populates="points")
 
 

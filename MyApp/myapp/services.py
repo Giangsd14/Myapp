@@ -1,39 +1,55 @@
-from .models import User, Map, user_map
-from sqlalchemy.orm import Session
+from .models import User, Map
+from sqlalchemy.ext.asyncio import AsyncSession
 from .schemas import CreateUser, CreateMap
 from .hashing import Hash
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 
-def create_user(db: Session, data: CreateUser):
+
+async def create_user(db: AsyncSession, data: CreateUser):
     user_instance = User(**data.model_dump())
     user_instance.user_pass = Hash.bcrypt(user_instance.user_pass)
     db.add(user_instance)
-    db.commit()
-    db.refresh(user_instance)
+    await db.commit()
+    await db.refresh(user_instance)
     return user_instance
 
-def get_user(db: Session, id: int):
-    return db.query(User).filter(User.id == id).first()
+async def get_user(db: AsyncSession, id: int):
+    stmt = select(User).where(User.id == id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
 
-def gets_user(db: Session):
-    return db.query(User).all()
+async def gets_user(db: AsyncSession):
+    stmt = select(User)
+    result = await db.execute(stmt)
+    return result.scalars().all()
 
 
-def create_map(db: Session, data: CreateMap):
+async def create_map(db: AsyncSession, data: CreateMap):
     map_instance = Map(**data.model_dump()) #object -> dict -> key_value
     db.add(map_instance)
-    db.commit()
-    db.refresh(map_instance)
+    await db.commit()
+    await db.refresh(map_instance)    
 
-    map_ = db.query(Map).filter_by(id=map_instance.id).first()
-    user = db.query(User).filter(User.id == map_instance.author_id).first()
-    user.maps.append(map_)
-    db.commit()   
+    stmt_user = select(User).options(selectinload(User.maps)).where(User.id == map_instance.author_id)
+    result = await db.execute(stmt_user)
+    user = result.scalar_one()
+
+    if user:
+        user.maps.append(map_instance)
+        db.add(user)
+        await db.commit()
+
     return map_instance
 
-def get_map(db: Session, id: int):
-    return db.query(Map).filter(Map.id == id).first()
+async def get_map(db: AsyncSession, id: int):
+    stmt = select(Map).options(selectinload(Map.users)).where(Map.id == id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
 
-def gets_map(db: Session):
-    return db.query(Map).all()
+async def gets_map(db: AsyncSession):
+    stmt = select(Map).options(selectinload(Map.users))
+    result = await db.execute(stmt)
+    return result.scalars().all()
 
