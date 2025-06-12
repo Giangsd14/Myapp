@@ -12,10 +12,10 @@ router = APIRouter(
 
 
 db_depend = Annotated[AsyncSession, Depends(database.get_db)]
-
+current_user = Annotated[schemas.User, Depends(oauth2.get_current_user)]
 
 @router.post("/", response_model=schemas.CreateMap)
-async def create_map(db: db_depend, data: schemas.CreateMap, get_current_user: schemas.User = Depends(oauth2.get_current_user)):
+async def create_map(db: db_depend, data: schemas.CreateMap, get_current_user: current_user):
     return await map.create_map(db, data)
 
 @router.get("/", response_model=list[schemas.ShowMap])

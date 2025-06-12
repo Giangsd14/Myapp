@@ -15,8 +15,8 @@ class BaseModel(Base):
 user_map = Table(
     "user_map",
     Base.metadata,
-    Column("user_id", ForeignKey("User.id"), primary_key=True),
-    Column("map_id", ForeignKey("Map.id"), primary_key=True)
+    Column("user_id", ForeignKey("User.id", ondelete="CASCADE"), primary_key=True),
+    Column("map_id", ForeignKey("Map.id", ondelete="CASCADE"), primary_key=True)
 )
 
 class User(BaseModel):
@@ -42,7 +42,7 @@ class Map(BaseModel):
     upd_at: Mapped[datetime] = mapped_column(nullable=True, default=None)
     share: Mapped[bool] = mapped_column(default=False)
 
-    users: Mapped[list[User]] = relationship(secondary=user_map, back_populates="maps")
+    users: Mapped[list[User]] = relationship(secondary=user_map, back_populates="maps", passive_deletes=True)
     templates: Mapped[list[Template]] = relationship(back_populates="maps", uselist=False, cascade="all, delete-orphan")
     points: Mapped[list[Point]] = relationship(back_populates="maps", uselist=False, cascade="all, delete-orphan")
 
