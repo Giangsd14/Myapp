@@ -1,4 +1,5 @@
 from __future__ import annotations
+from unicodedata import category
 from sqlalchemy import Column, ForeignKey, String, Table
 from .database import Base
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -29,9 +30,9 @@ user_liked = Table(
 class User(BaseModel):
     __tablename__ = 'User'
 
-    user_name: Mapped[str] = mapped_column(String, index=True)
+    user_name: Mapped[str] = mapped_column(String, unique=True, index=True)
     user_pass: Mapped[str] = mapped_column(String, index=True)
-    email: Mapped[str] =mapped_column(String, index=True)
+    email: Mapped[str] =mapped_column(String, unique=True, index=True)
     cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
     maps: Mapped[list[Map]] = relationship(secondary=user_map, back_populates="users")
@@ -47,8 +48,9 @@ class Map(BaseModel):
     name: Mapped[str] = mapped_column(String, index=True)
     desc: Mapped[str] = mapped_column(String)
     img: Mapped[str] = mapped_column(String)
+    category: Mapped[str] = mapped_column(String)
     cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    upd_at: Mapped[datetime] = mapped_column(nullable=True, default=None)
+    upd_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     share: Mapped[bool] = mapped_column(default=False)
 
     users: Mapped[list[User]] = relationship(secondary=user_map, back_populates="maps", passive_deletes=True)
@@ -74,7 +76,7 @@ class Point(BaseModel):
     desc: Mapped[str] = mapped_column(String)
     img: Mapped[str] = mapped_column(String)
     cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    upd_at: Mapped[datetime] = mapped_column(nullable=True, default=None)
+    upd_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"), primary_key=True)
 
     maps: Mapped[list[Map]] = relationship(back_populates="points")

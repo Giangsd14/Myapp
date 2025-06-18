@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from pydantic import BaseModel
 
 
@@ -21,7 +21,7 @@ class UserBase(BaseModel):
     user_name: str
     user_pass: str
     email: str
-    cre_at: date
+    cre_at: datetime #xem
 
 class MapBase(BaseModel):
     name: str
@@ -29,16 +29,24 @@ class MapBase(BaseModel):
     author_id: int
     desc: str
     img: str
-    cre_at: date 
-    upd_at: date 
+    cre_at: datetime 
+    upd_at: datetime 
     share: bool = False
 
 
-class CreateUser(UserBase):
-    pass
+class CreateUser(BaseModel):
+    user_name: str
+    user_pass: str
+    email: str
 
-class CreateMap(MapBase):
-    pass
+class CreateMap(BaseModel):
+    name: str
+    desc: str
+    img: str
+    category: str
+
+    class config:
+        from_attribute = True
 
 
 class User(UserBase):
@@ -58,7 +66,7 @@ class ShowUser(BaseModel):
     id: int
     user_name: str
     email: str
-    cre_at: date
+    cre_at: datetime
 
     class config:
         from_attribute = True
@@ -66,6 +74,10 @@ class ShowUser(BaseModel):
 class ShowMap(BaseModel):
     id: int
     name: str
+    author: str
+    author_id: int
+    upd_at: datetime 
+
     users: list[ShowUser]
 
     class config:
@@ -76,5 +88,5 @@ class Template(BaseModel):
     no_like: int = 0
 
 class Like_Map(BaseModel):
-    id_user: int | None = None
-    map_id: int | None = None
+    id_user: int 
+    map_id: int 
