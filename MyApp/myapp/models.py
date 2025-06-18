@@ -23,14 +23,13 @@ user_liked = Table(
     "user_liked",
     Base.metadata,
     Column("user_id", ForeignKey("User.id", ondelete="CASCADE"), primary_key=True),
-    Column("map_id", ForeignKey("Template.map_id", ondelete="CASCADE"), primary_key=True)
+    Column("temp_id", ForeignKey("Template.id", ondelete="CASCADE"), primary_key=True)
 )
 
 class User(BaseModel):
     __tablename__ = 'User'
 
     user_name: Mapped[str] = mapped_column(String, index=True)
-    user_name2: Mapped[str] = mapped_column(String, index=True)
     user_pass: Mapped[str] = mapped_column(String, index=True)
     email: Mapped[str] =mapped_column(String, index=True)
     cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
@@ -60,7 +59,7 @@ class Map(BaseModel):
 class Template(BaseModel):
     __tablename__ = 'Template'
 
-    map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"), primary_key=True)
+    map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"))
     no_like: Mapped[int] = mapped_column(index=True)
 
     maps: Mapped[list[Map]] = relationship(back_populates="templates")
