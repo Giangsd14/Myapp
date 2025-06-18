@@ -44,7 +44,7 @@ class Map(BaseModel):
     __tablename__ = 'Map'
 
     author: Mapped[str] = mapped_column(String, index=True)
-    author_id: Mapped[int] = mapped_column(ForeignKey("User.id"), index=True)
+    author_id: Mapped[int] = mapped_column(ForeignKey("User.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String, index=True)
     desc: Mapped[str] = mapped_column(String)
     img: Mapped[str] = mapped_column(String)
@@ -54,8 +54,8 @@ class Map(BaseModel):
     share: Mapped[bool] = mapped_column(default=False)
 
     users: Mapped[list[User]] = relationship(secondary=user_map, back_populates="maps", passive_deletes=True)
-    templates: Mapped[list[Template]] = relationship(back_populates="maps", uselist=False, cascade="all, delete-orphan")
-    points: Mapped[list[Point]] = relationship(back_populates="maps", uselist=False, cascade="all, delete-orphan")
+    templates: Mapped[list[Template]] = relationship(back_populates="maps", cascade="all, delete-orphan")
+    points: Mapped[list[Point]] = relationship(back_populates="maps", cascade="all, delete-orphan")
 
 
 class Template(BaseModel):

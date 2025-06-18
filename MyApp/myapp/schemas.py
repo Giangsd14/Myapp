@@ -21,7 +21,7 @@ class UserBase(BaseModel):
     user_name: str
     user_pass: str
     email: str
-    cre_at: datetime #xem
+    cre_at: datetime 
 
 class MapBase(BaseModel):
     name: str
@@ -77,8 +77,6 @@ class ShowMap(BaseModel):
     author: str
     author_id: int
     upd_at: datetime 
-
-    users: list[ShowUser]
 
     class config:
         orm_mode = True

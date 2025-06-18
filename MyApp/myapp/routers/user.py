@@ -26,7 +26,7 @@ async def get_all_user(db: db_depend, get_current_user: current_user):
 async def get_user(db: db_depend, id: int):
     return await user.get_user(db, id)
 
-@router.delete("/")
+@router.delete("/", response_model=schemas.MessageResponse)
 async def delete_account(db: db_depend, password: str, get_current_user: current_user):
     return await user.delete_account(db, password, get_current_user)
 
@@ -34,6 +34,6 @@ async def delete_account(db: db_depend, password: str, get_current_user: current
 async def update_password(db: db_depend, password: str, get_current_user: current_user, data: schemas.CreateUser):
     return await user.update_password(db, password, get_current_user, data)
 
-@router.post("/like", response_model=schemas.Like_Map)
-async def like_map(db: db_depend, temp_id: int, get_current_user: current_user):
-    return await user.like_map(db, temp_id, get_current_user)
+# @router.post("/like", response_model=schemas.Like_Map)
+# async def like_map(db: db_depend, temp_id: int, get_current_user: current_user):
+#     return await user.like_map(db, temp_id, get_current_user)

@@ -12,16 +12,14 @@ from sqlalchemy.exc import IntegrityError
 
 db_depend = Annotated[AsyncSession, Depends(database.get_db)]
 
-async def existing_check(db: db_depend, table, whereclause) -> bool:
+async def existing_check(db, table, whereclause) -> bool:
     existing = await db.scalar(select(table).where(whereclause))
     return existing is not None
 
 
 async def create_user(db: db_depend, data: schemas.CreateUser):
-
     if await existing_check(db, User, (User.user_name == data.user_name)):
-        # print(await db.scalar(select(User).where(User.user_name == data.user_name)))
-        raise HTTPException(400, detail="Username already exists xx")
+        raise HTTPException(400, detail="Username already exists")
     if await existing_check(db, User, ((User.email == data.email))):
         raise HTTPException(400, detail="Email already exists")
 
@@ -48,23 +46,24 @@ async def get_user(db: db_depend, id: int):
     stmt = select(User).where(User.id == id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
-    if not user_query_set:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid user hihi!")
+    # if not user_query_set:
+    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid user hihi!")
 
 
 async def delete_account(db: db_depend, password: str, get_current_user):
     stmt = select(User).options(selectinload(User.maps)).where(User.user_name == get_current_user.username)
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
+
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid username!")
-
     if not Hash.verify(password, user.user_pass):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Incorrect password!")
 
     await db.delete(user)
     await db.commit()
-    return {"detail": "Tài khoản đã bị xóa"}
+    return {"detail": "Tài khoản đã được xóa",
+            "force_logout": True}
 
 
 async def update_password(db: db_depend, password: str, get_current_user, data: schemas.CreateUser):
