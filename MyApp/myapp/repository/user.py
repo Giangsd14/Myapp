@@ -61,4 +61,6 @@ async def update_password(db: db_depend, password: str, get_current_user, data: 
     return {
     "detail": "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.",
     "force_logout": True}
-    
+
+async def like_map(db, map_id, get_current_user, data):
+    pass

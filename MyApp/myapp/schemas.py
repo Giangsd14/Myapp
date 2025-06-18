@@ -11,7 +11,7 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    username: str | None = None
+    username: str
 
 class MessageResponse(BaseModel):
     detail: str
@@ -30,7 +30,7 @@ class MapBase(BaseModel):
     desc: str
     img: str
     cre_at: date 
-    upd_at: date | None = None
+    upd_at: date 
     share: bool = False
 
 
@@ -75,3 +75,6 @@ class ShowMap(BaseModel):
 class Template(BaseModel):
     no_like: int = 0
 
+class Like_Map(BaseModel):
+    id_user: int | None = None
+    map_id: int | None = None
