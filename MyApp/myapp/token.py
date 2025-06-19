@@ -2,7 +2,10 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from jwt.exceptions import InvalidTokenError
 from . import schemas
+from .models import User
 from .config import settings
+from .hashing import Check
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 # openssl rand -hex 32 #Linux
@@ -19,12 +22,14 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def verify_token(token: str, credentials_exception):
+async def verify_token(token: str, credentials_exception, db: AsyncSession):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
         if username is None:
             raise credentials_exception
+        if not await Check().existing_check(db, User, (User.user_name == username)):
+                raise credentials_exception
         token_data = schemas.TokenData(username=username)
         return token_data
     except InvalidTokenError:

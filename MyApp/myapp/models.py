@@ -77,6 +77,6 @@ class Point(BaseModel):
     img: Mapped[str] = mapped_column(String)
     cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     upd_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"), primary_key=True)
+    map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"))
 
     maps: Mapped[list[Map]] = relationship(back_populates="points")

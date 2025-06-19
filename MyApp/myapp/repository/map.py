@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .. import schemas, database
 
 from ..models import User, Map
-from ..hashing import Hash
+from ..hashing import Hash, Check
 from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
 
