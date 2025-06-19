@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import IntegrityError
 
 
-db_depend = Annotated[AsyncSession, Depends(database.get_db)]
+db_depend = AsyncSession
 
 
 async def create_user(db: db_depend, data: schemas.CreateUser):

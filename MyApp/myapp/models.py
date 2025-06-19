@@ -62,7 +62,7 @@ class Template(BaseModel):
     __tablename__ = 'Template'
 
     map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"))
-    no_like: Mapped[int] = mapped_column(index=True)
+    no_like: Mapped[int] = mapped_column(default=False)
 
     maps: Mapped[list[Map]] = relationship(back_populates="templates")
     users: Mapped[list[User]] = relationship(secondary=user_liked, back_populates="temps", passive_deletes=True)

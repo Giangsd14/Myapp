@@ -1,5 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
+from typing import Optional
+
 
 
 class Login(BaseModel):
@@ -45,21 +47,21 @@ class CreateMap(BaseModel):
     img: str
     category: str
 
-    class config:
-        from_attribute = True
+    # class config:
+    #     from_attribute = True
 
 
 class User(UserBase):
     id : int
 
-    class config:
-        from_attribute = True
+    # class config:
+    #     from_attribute = True
 
 class Map(MapBase):
     id : int
 
-    class config:
-        from_attribute = True
+    # class config:
+    #     from_attribute = True
 
 
 class ShowUser(BaseModel):
@@ -68,19 +70,27 @@ class ShowUser(BaseModel):
     email: str
     cre_at: datetime
 
-    class config:
-        from_attribute = True
+    # class config:
+    #     from_attribute = True
+
 
 class ShowMap(BaseModel):
     id: int
     name: str
     author: str
     author_id: int
+    cre_at: datetime 
     upd_at: datetime 
+    share: bool = False
 
-    class config:
-        orm_mode = True
+    # class config:
+    #     orm_mode = True
 
+class UpdateMap(BaseModel):
+    name: Optional[str] = None
+    desc: Optional[str] = None
+    img: Optional[str] = None
+    share: Optional[bool] = None
 
 class Template(BaseModel):
     no_like: int = 0
@@ -97,12 +107,6 @@ class CreatePoint(BaseModel):
     desc: str
     img: str
 
-class Update_Point(BaseModel):
-    name: str
-    geom: str
-    desc: str
-    img: str
-
 
 class ShowPoint(CreatePoint):
 
@@ -110,10 +114,22 @@ class ShowPoint(CreatePoint):
     cre_at: datetime
     upd_at: datetime
 
-    class config:
-        from_attribute = True
+    # class config:
+    #     from_attribute = True
 
 class UpdatePoint(BaseModel):
     name: str
+    geom: str
     desc: str
     img: str
+
+
+class CreateTemplate(BaseModel):
+
+    id: int
+    map_id: int
+
+class ShowTemplate(CreateTemplate):
+
+    no_like: int 
+    

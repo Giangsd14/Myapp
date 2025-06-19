@@ -48,7 +48,7 @@ async def delete_point(db: db_depend, map_id: int, point_id: int, get_current_us
     await db.commit()
     return {"detail": "Point deleted!"}
 
-async def update_point(db: db_depend, map_id: int, point_id: int, data: schemas.Update_Point, get_current_user):
+async def update_point(db: db_depend, map_id: int, point_id: int, data: schemas.UpdatePoint, get_current_user):
     user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
     if not await Check().existing_check(db, Map, (Map.author_id == user.id) & (Map.id == map_id)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
