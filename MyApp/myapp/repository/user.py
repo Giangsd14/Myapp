@@ -24,7 +24,7 @@ async def create_user(db: db_depend, data: schemas.CreateUser):
         raise HTTPException(400, detail="Email already exists")
 
     user_instance = User(**data.model_dump())
-    user_instance.user_pass = Hash.bcrypt(user_instance.user_pass)
+    user_instance.user_pass = Hash().bcrypt(user_instance.user_pass)
     db.add(user_instance)
     try:
         await db.commit()
@@ -57,7 +57,7 @@ async def delete_account(db: db_depend, password: str, get_current_user):
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid username!")
-    if not Hash.verify(password, user.user_pass):
+    if not Hash().verify(password, user.user_pass):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Incorrect password!")
 
     await db.delete(user)
@@ -73,10 +73,10 @@ async def update_password(db: db_depend, password: str, get_current_user, data: 
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid username!")
-    if not Hash.verify(password, user.user_pass):
+    if not Hash().verify(password, user.user_pass):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Incorrect password!")
     
-    user.user_pass = Hash.bcrypt(user_instance.user_pass)
+    user.user_pass = Hash().bcrypt(user_instance.user_pass)
     await db.commit()
     await db.refresh(user)
     return {
