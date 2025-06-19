@@ -20,7 +20,7 @@ async def login(db: db_depend, data: mydata) -> schemas.Token:
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid username!")
-    if not Hash.verify(data.password, user.user_pass): 
+    if not Hash().verify(data.password, user.user_pass): 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Incorrect password!")
     
     access_token = token.create_access_token(data={"sub": user.user_name})
