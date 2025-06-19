@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, status
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models import User, user_liked
-from ..hashing import Hash
+from ..hashing import Hash, Check
 from .. import database, schemas
 from sqlalchemy import select, delete, insert
 from sqlalchemy.orm import selectinload
@@ -12,15 +12,11 @@ from sqlalchemy.exc import IntegrityError
 
 db_depend = Annotated[AsyncSession, Depends(database.get_db)]
 
-async def existing_check(db, table, whereclause) -> bool:
-    existing = await db.scalar(select(table).where(whereclause))
-    return existing is not None
-
 
 async def create_user(db: db_depend, data: schemas.CreateUser):
-    if await existing_check(db, User, (User.user_name == data.user_name)):
+    if await Check().existing_check(db, User, (User.user_name == data.user_name)):
         raise HTTPException(400, detail="Username already exists")
-    if await existing_check(db, User, ((User.email == data.email))):
+    if await Check().existing_check(db, User, ((User.email == data.email))):
         raise HTTPException(400, detail="Email already exists")
 
     user_instance = User(**data.model_dump())
