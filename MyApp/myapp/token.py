@@ -26,5 +26,6 @@ def verify_token(token: str, credentials_exception):
         if username is None:
             raise credentials_exception
         token_data = schemas.TokenData(username=username)
+        return token_data
     except InvalidTokenError:
         raise credentials_exception
