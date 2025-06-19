@@ -30,6 +30,6 @@ async def get_template(db: db_depend, temp_id: int):
 async def delete_template(db: db_depend, temp_id: int, get_current_user: current_user):
     return await template.delete_template(db, temp_id, get_current_user)
 
-# @router.put("/", response_model=schemas.ShowTemplate)
-# async def update_template(db: db_depend, map_id: int, Template_id: int, data: schemas.CreateTemplate, get_current_user: current_user):
-#     return await template.update_template(db, map_id, Template_id, data, get_current_user)
+@router.post("/like", response_model=schemas.ShowTemplate)
+async def like_template(db: db_depend, temp_id: int, get_current_user: current_user):
+    return await template.like_template(db, temp_id, get_current_user)

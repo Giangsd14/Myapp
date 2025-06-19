@@ -6,9 +6,9 @@ from .map import update_map
 
 from .. import schemas
 
-from ..models import User, Map, Template
+from ..models import User, Map, Template, user_liked
 from ..hashing import Check
-from sqlalchemy import select
+from sqlalchemy import insert, select, func, update, delete
 
 
 
@@ -64,24 +64,33 @@ async def delete_template(db: db_depend, temp_id: int, get_current_user):
     await db.commit()
     return {"detail": "Template deleted!"}
 
+async def like_template(db: db_depend, temp_id: int, get_current_user):
+    temp = await db.scalar(select(Template).where(Template.id == temp_id))
+    if not temp:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Your template invalid!")
+    user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
 
-# async def update_template(db: db_depend, map_id: int, point_id: int, data: schemas.CreateTemplate, get_current_user):
-#     return 1
-#     user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
-#     if not await Check().existing_check(db, Map, (Map.author_id == user.id) & (Map.id == map_id)):
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-#                             detail="Your map invalid!")
+    if await Check().existing_check(db, user_liked,
+                                        (user_liked.c.user_id == user.id) & (user_liked.c.temp_id == temp.id)):
+        stmt = delete(user_liked).where((user_liked.c.user_id == user.id) & (user_liked.c.temp_id == temp.id))
+    else:
 
-#     point = await db.scalar(select(Point).where((Point.map_id == map_id) & (Point.id == point_id)))
-#     if not point:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-#                             detail="Invalid Point!")
-    
-#     point.upd_at = datetime.now(timezone.utc).replace(tzinfo=None) #.replace(tzinfo=None)  tạm
+        stmt = insert(user_liked).values(user_id=user.id, temp_id=temp.id)
 
-#     for key, value in data.model_dump(exclude_unset=True).items():
-#         setattr(point, key, value)
-        
-#     await db.commit()
-#     await db.refresh(point)
-#     return point
+    try:
+        await db.execute(stmt)
+
+        count_stmt = select(func.count()).select_from(user_liked).where(user_liked.c.temp_id == temp.id)
+        count_result = await db.scalar(count_stmt)
+
+        update_stmt = update(Template).where(Template.id == temp.id).values(no_like=count_result)
+        await db.execute(update_stmt)
+
+        await db.commit()
+        return temp
+
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail="Something went wrong!")
+
