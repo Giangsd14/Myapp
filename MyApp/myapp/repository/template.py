@@ -1,18 +1,15 @@
-from string import Template
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from .map import update_map
-
 from .. import schemas
-
 from ..models import User, Map, Template, user_liked
 from ..hashing import Check
 from sqlalchemy import insert, select, func, update, delete
 
 
-
 db_depend = AsyncSession
+
 
 async def create_template(db: db_depend, map_id: int, get_current_user):
     user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
@@ -37,6 +34,7 @@ async def create_template(db: db_depend, map_id: int, get_current_user):
 async def get_all_template(db: db_depend):
     return await db.scalars(select(Template))
 
+
 async def get_template(db: db_depend, temp_id: int):
     
     temp = await db.scalar(select(Template).where(Template.id == temp_id))   
@@ -44,6 +42,7 @@ async def get_template(db: db_depend, temp_id: int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Your template invalid!")
     return temp
+
 
 async def delete_template(db: db_depend, temp_id: int, get_current_user):
 
@@ -63,6 +62,7 @@ async def delete_template(db: db_depend, temp_id: int, get_current_user):
     await db.delete(temp)
     await db.commit()
     return {"detail": "Template deleted!"}
+
 
 async def like_template(db: db_depend, temp_id: int, get_current_user):
     temp = await db.scalar(select(Template).where(Template.id == temp_id))
