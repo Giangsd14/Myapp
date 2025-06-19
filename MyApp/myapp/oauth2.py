@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 db_depend = Annotated[AsyncSession, Depends(database.get_db)]
 
 

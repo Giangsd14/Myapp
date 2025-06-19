@@ -36,8 +36,8 @@ async def get_all_user(db: db_depend):
     return await db.scalars(select(User))
 
 
-async def get_user(db: db_depend, id: int):
-    return await db.scalar(select(User).where(User.id == id))
+async def get_user(db: db_depend, get_current_user):
+    return await db.scalar(select(User).where(User.user_name == get_current_user.username))
 
 
 async def delete_account(db: db_depend, password: str, get_current_user):

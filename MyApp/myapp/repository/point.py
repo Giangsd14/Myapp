@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from .. import schemas

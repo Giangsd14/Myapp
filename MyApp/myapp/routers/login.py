@@ -14,7 +14,7 @@ db_depend = Annotated[AsyncSession, Depends(database.get_db)]
 mydata = Annotated[OAuth2PasswordRequestForm, Depends()]
 
 
-@router.post("/login")
+@router.post("/token")
 async def login(db: db_depend, data: mydata) -> schemas.Token:
     stmt = select(models.User).where(models.User.user_name == data.username)
     result = await db.execute(stmt)
