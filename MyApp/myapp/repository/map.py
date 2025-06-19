@@ -34,7 +34,7 @@ async def create_map(db: db_depend, data: schemas.CreateMap, get_current_user):
     return map_instance
 
 async def get_all_map(db: db_depend):
-    stmt = select(Map).options(selectinload(Map.users))
+    stmt = select(Map)
     result = await db.execute(stmt)
     return result.scalars().all()
 

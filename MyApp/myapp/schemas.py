@@ -97,9 +97,23 @@ class CreatePoint(BaseModel):
     desc: str
     img: str
 
+class Update_Point(BaseModel):
+    name: str
+    geom: str
+    desc: str
+    img: str
+
 
 class ShowPoint(CreatePoint):
 
     id: int
     cre_at: datetime
     upd_at: datetime
+
+    class config:
+        from_attribute = True
+
+class UpdatePoint(BaseModel):
+    name: str
+    desc: str
+    img: str
