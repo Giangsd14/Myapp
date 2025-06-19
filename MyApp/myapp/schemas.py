@@ -88,3 +88,18 @@ class Template(BaseModel):
 class Like_Map(BaseModel):
     id_user: int 
     map_id: int 
+
+
+class CreatePoint(BaseModel):
+    map_id: int
+    name: str
+    geom: str
+    desc: str
+    img: str
+
+
+class ShowPoint(CreatePoint):
+
+    id: int
+    cre_at: datetime
+    upd_at: datetime
