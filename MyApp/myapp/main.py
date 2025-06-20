@@ -5,10 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(docs_url="/")
 
-# origins = [
-#     "https://my-app.netlify.app",   # Domain Frontend
-#     "http://localhost:8100",        # Ionic local
-# ]
+origins = [
+    # "https://my-app.netlify.app",   # Domain Frontend
+    "http://localhost:8100",        # Ionic local
+]
 
 app.add_middleware(
     CORSMiddleware,
