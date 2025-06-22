@@ -131,9 +131,7 @@ class ShowTemplate2(CreateTemplate):
 #Feedback
 class CreateFeedback(BaseModel):
     id: int
-    # user_id: int
-    # username: str
-    star: Literal[1, 2, 3, 4, 5] = 5
+    star: int = 5
     desc: Optional[str] = None
 
 class ShowFeedback(CreateFeedback):
