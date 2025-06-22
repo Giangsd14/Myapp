@@ -8,13 +8,14 @@ from ..hashing import Check
 from datetime import datetime, timezone
 
 
+
 db_depend = AsyncSession
 
 
 async def create_map(db: db_depend, data: schemas.CreateMap, get_current_user):
     user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
 
-    map_instance = Map(**data.model_dump()) #object -> dict -> key_value
+    map_instance = Map(**data.model_dump(exclude_unset=True))  #object -> dict -> key_value
     map_instance.author = user.user_name
     map_instance.author_id = user.id
     

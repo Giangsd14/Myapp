@@ -1,9 +1,9 @@
 from __future__ import annotations
-from unicodedata import category
 from sqlalchemy import Column, ForeignKey, String, Table, DateTime
 from .database import Base
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime, timezone
+from typing import Optional
 
 
 
@@ -46,9 +46,12 @@ class Map(BaseModel):
     author: Mapped[str] = mapped_column(String, index=True)
     author_id: Mapped[int] = mapped_column(ForeignKey("User.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String, index=True)
-    desc: Mapped[str] = mapped_column(String)
-    img: Mapped[str] = mapped_column(String)
-    category: Mapped[str] = mapped_column(String)
+    # desc: Mapped[str] = mapped_column(String)
+    # img: Mapped[str] = mapped_column(String)
+    # category: Mapped[str] = mapped_column(String)
+    desc: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    img: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    category: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     cre_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     upd_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     share: Mapped[bool] = mapped_column(default=False)
