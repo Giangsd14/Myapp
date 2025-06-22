@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Literal
 
 from sqlalchemy import false
 
@@ -133,7 +133,7 @@ class CreateFeedback(BaseModel):
     id: int
     # user_id: int
     # username: str
-    star: int = 5
+    star: Literal[1, 2, 3, 4, 5] = 5
     desc: Optional[str] = None
 
 class ShowFeedback(CreateFeedback):
