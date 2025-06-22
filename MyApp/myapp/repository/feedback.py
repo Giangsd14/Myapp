@@ -16,9 +16,9 @@ db_depend = AsyncSession
 async def create_feedback(db: db_depend, data: schemas.CreateFeedback, get_current_user):
     user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
 
-    feedback_instance = Map(**data.model_dump())
-    feedback_instance.author = user.user_name
-    feedback_instance.author_id = user.id
+    feedback_instance = Feedback(**data.model_dump())
+    feedback_instance.username = user.user_name
+    feedback_instance.user_id = user.id
     
     db.add(feedback_instance)
     await db.commit()
