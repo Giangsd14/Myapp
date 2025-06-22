@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from .. import schemas
 from ..models import User, Map
@@ -6,19 +6,39 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from ..hashing import Check
 from datetime import datetime, timezone
-
+from ..routers import upload_image
+from typing import Optional
 
 
 db_depend = AsyncSession
 
 
-async def create_map(db: db_depend, data: schemas.CreateMap, get_current_user):
+async def create_map(
+    db: db_depend,
+    name: str,
+    desc: Optional[str],
+    category: Optional[str],
+    share: bool,
+    img: Optional[UploadFile],
+    get_current_user
+):
     user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
 
-    map_instance = Map(**data.model_dump(exclude_unset=True))  #object -> dict -> key_value
-    map_instance.author = user.user_name
-    map_instance.author_id = user.id
-    
+    image_url = None
+    if img:
+        image_url = await upload_image.upload_image(get_current_user, img)
+        image_url = image_url.get("url")
+
+    map_instance = Map(
+        name=name,
+        desc=desc,
+        category=category,
+        share=share,
+        img=image_url,
+        author=user.user_name,
+        author_id=user.id
+    )
+
     db.add(map_instance)
     await db.commit()
     await db.refresh(map_instance)    
@@ -56,13 +76,20 @@ async def delete_map(db: db_depend, map_id: int, get_current_user):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Your map invalid!")
     map = await db.scalar(select(Map).where(Map.id == map_id))
+    await upload_image.delete_image(get_current_user, map.img)
     
     await db.delete(map)
     await db.commit()
     return {"detail": "Map deleted!"}
 
 
-async def update_map(db: db_depend, map_id: int, data: schemas.UpdateMap, get_current_user):
+async def update_map(
+    db: db_depend,
+    map_id: int,
+    data: schemas.UpdateMap,
+    img: Optional[UploadFile],
+    get_current_user):
+
     user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
     if not await Check().existing_check(db, Map, (Map.author_id == user.id) & (Map.id == map_id)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -73,6 +100,13 @@ async def update_map(db: db_depend, map_id: int, data: schemas.UpdateMap, get_cu
     map.upd_at = datetime.now(timezone.utc)
 
     update_fields = data.model_dump(exclude_unset=True)
+
+    if img:
+        await upload_image.delete_image(get_current_user, map.img)
+        upload_result = await upload_image.upload_image(get_current_user, img)
+        map.img = upload_result.get("url")
+
+
     map_new = update_fields.get("share")
     for key, value in update_fields.items():
         setattr(map, key, value)

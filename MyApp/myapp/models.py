@@ -54,7 +54,7 @@ class Map(BaseModel):
     share: Mapped[bool] = mapped_column(default=False)
 
     users: Mapped[list[User]] = relationship(secondary=user_map, back_populates="maps", passive_deletes=True)
-    templates: Mapped[list[Template]] = relationship(back_populates="maps", cascade="all, delete-orphan")
+    templates: Mapped[Template] = relationship(back_populates="maps", cascade="all, delete-orphan")
     points: Mapped[list[Point]] = relationship(back_populates="maps", cascade="all, delete-orphan")
 
 

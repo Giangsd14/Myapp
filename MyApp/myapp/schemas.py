@@ -74,11 +74,13 @@ class ShowMap(BaseModel):
     name: str
     author: str
     author_id: int
+    desc: Optional[str] = None
+    img: Optional[str] = None
     cre_at: datetime 
     upd_at: datetime 
     share: bool = False
-    class Config:
-        from_attributes = True
+    # class Config:
+    #     from_attributes = True
 
 class UpdateMap(BaseModel):
     name: Optional[str] = None
