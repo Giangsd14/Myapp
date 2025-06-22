@@ -1,13 +1,8 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, timezone
-from .map import update_map
 from .. import schemas
-from ..models import Feedback, User, Map, Template, user_liked
-from ..hashing import Check
-from sqlalchemy import insert, select, func, update, delete
-from sqlalchemy.orm import selectinload
-
+from ..models import Feedback, User
+from sqlalchemy import select
 
 
 db_depend = AsyncSession
@@ -17,6 +12,11 @@ async def create_feedback(db: db_depend, data: schemas.CreateFeedback, get_curre
     user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
 
     feedback_instance = Feedback(**data.model_dump())
+    if feedback_instance.star not in [1, 2, 3, 4, 5]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Star invalid!"
+        )
     feedback_instance.username = user.user_name
     feedback_instance.user_id = user.id
     
