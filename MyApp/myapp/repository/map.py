@@ -85,13 +85,7 @@ async def delete_map(db: db_depend, map_id: int, get_current_user):
     return {"detail": "Map deleted!"}
 
 
-async def update_map(
-    db: db_depend,
-    map_id: int,
-    data: schemas.UpdateMap,
-    img: Optional[UploadFile],
-    get_current_user):
-
+async def update_map(db: db_depend, map_id: int, data: schemas.UpdateMap, get_current_user):
     user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
     if not await Check().existing_check(db, Map, (Map.author_id == user.id) & (Map.id == map_id)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -102,13 +96,6 @@ async def update_map(
     map.upd_at = datetime.now(timezone.utc)
 
     update_fields = data.model_dump(exclude_unset=True)
-
-    if img:
-        await upload_image.delete_image(get_current_user, map.img)
-        upload_result = await upload_image.upload_image(get_current_user, img)
-        map.img = upload_result.get("url")
-
-
     map_new = update_fields.get("share")
     for key, value in update_fields.items():
         setattr(map, key, value)

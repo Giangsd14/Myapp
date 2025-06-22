@@ -79,8 +79,8 @@ class ShowMap(BaseModel):
     cre_at: datetime 
     upd_at: datetime 
     share: bool = False
-    # class Config:
-    #     from_attributes = True
+    class Config:
+        from_attributes = True
 
 class UpdateMap(BaseModel):
     name: Optional[str] = None

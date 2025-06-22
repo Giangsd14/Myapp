@@ -1,12 +1,12 @@
-from fastapi import UploadFile, File, APIRouter, HTTPException, status
+from fastapi import UploadFile, File, APIRouter, HTTPException, status,  APIRouter, Depends
 import cloudinary
 from cloudinary.uploader import upload, destroy
 from PIL import Image
 import io
-from fastapi import APIRouter, Depends
 from .. import schemas, oauth2
 from typing import Annotated
-from fastapi import UploadFile, File
+# import requests
+
 
 # cloudinary.config(secure=True)
 
@@ -58,3 +58,20 @@ async def delete_image(get_current_user: current_user, url: str):
 
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+# async def copy_image(image_url: str):
+#     try:
+#         response = requests.get(image_url)
+#         if response.status_code != 200:
+#             raise HTTPException(status_code=400, detail="Failed to fetch image from URL")
+
+#         result = upload(response.content, resource_type="image")
+
+#         return {
+#             "url": result["secure_url"],
+#             "public_id": result["public_id"]
+#         }
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))

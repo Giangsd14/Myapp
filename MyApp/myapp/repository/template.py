@@ -1,6 +1,5 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, timezone
 from .map import update_map
 from .. import schemas
 from ..models import User, Map, Template, user_liked
@@ -137,3 +136,5 @@ async def like_template(db: db_depend, temp_id: int, get_current_user):
         await db.rollback()
         raise HTTPException(status_code=500, detail="Something went wrong!")
 
+# async def copy_template(db: db_depend, temp_id: int, get_current_user):
+#     temp = await db.scalar(select(Template).where(Template.id == temp_id))
