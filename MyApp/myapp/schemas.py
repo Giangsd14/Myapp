@@ -61,9 +61,9 @@ class MapBase(BaseModel):
 
 class CreateMap(BaseModel):
     name: str
-    desc: str
-    img: str
-    category: str
+    desc: Optional[str] = None
+    img: Optional[str] = None
+    category: Optional[str] = None
     share: bool = False
 
 class Map(MapBase):
@@ -96,8 +96,8 @@ class CreatePoint(BaseModel):
     map_id: int
     name: str
     geom: str
-    desc: str
-    img: str
+    desc: Optional[str] = None
+    img: Optional[str] = None
 
 class ShowPoint(CreatePoint):
     id: int
