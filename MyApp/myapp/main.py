@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import login, user, map, point, template
+from .routers import login, user, map, point, template, feedback
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -24,3 +24,4 @@ app.include_router(map.router)
 app.include_router(user.router)
 app.include_router(point.router)
 app.include_router(template.router)
+app.include_router(feedback.router)
