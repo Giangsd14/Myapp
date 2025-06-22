@@ -126,3 +126,16 @@ class ShowTemplate(CreateTemplate):
     
 class ShowTemplate2(CreateTemplate):
     no_like: int 
+
+
+#Feedback
+class CreateFeedback(BaseModel):
+    id: int
+    # user_id: int
+    # username: str
+    star: int = 5
+    desc: Optional[str] = None
+
+class ShowFeedback(CreateFeedback):
+    # user_id: int
+    # username: str

@@ -32,12 +32,12 @@ class User(BaseModel):
 
     user_name: Mapped[str] = mapped_column(String, unique=True, index=True)
     user_pass: Mapped[str] = mapped_column(String, index=True)
-    email: Mapped[str] =mapped_column(String, unique=True, index=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
     cre_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
 
     maps: Mapped[list[Map]] = relationship(secondary=user_map, back_populates="users")
     temps: Mapped[list[Template]] = relationship(secondary=user_liked, back_populates="users")
-
+    feedbacks: Mapped[list["Feedback"]] = relationship(back_populates="users", cascade="all, delete-orphan")
 
 
 class Map(BaseModel):
@@ -81,3 +81,12 @@ class Point(BaseModel):
 
     maps: Mapped[list[Map]] = relationship(back_populates="points")
     
+class Feedback(BaseModel):
+    __tablename__ = 'Feedback'
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("User.id"))
+    username: Mapped[str] = mapped_column(String)
+    desc: Mapped[str] = mapped_column(String)
+    star: Mapped[int] = mapped_column(default=5)
+
+    users = relationship(back_populates="feedbacks")
