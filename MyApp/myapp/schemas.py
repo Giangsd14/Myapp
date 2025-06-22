@@ -137,5 +137,5 @@ class CreateFeedback(BaseModel):
     desc: Optional[str] = None
 
 class ShowFeedback(CreateFeedback):
-    # user_id: int
-    # username: str
+    user_id: int
+    username: str

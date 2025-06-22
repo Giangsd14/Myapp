@@ -89,4 +89,4 @@ class Feedback(BaseModel):
     desc: Mapped[str] = mapped_column(String)
     star: Mapped[int] = mapped_column(default=5)
 
-    users = relationship(back_populates="feedbacks")
+    users: Mapped[User]  = relationship(back_populates="feedbacks")
