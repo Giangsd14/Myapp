@@ -3,6 +3,7 @@ from .. import schemas, database, oauth2
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..repository import template
+from typing import Optional
 
 
 router = APIRouter(
@@ -19,12 +20,12 @@ async def create_template(db: db_depend, map_id: int, get_current_user: current_
     return await template.create_template(db, map_id, get_current_user)
 
 @router.get("/", response_model=list[schemas.ShowTemplate])
-async def get_all_template(db: db_depend):
-    return await template.get_all_template(db)
+async def get_all_template(db: db_depend, get_current_user: current_user):
+    return await template.get_all_template(db, get_current_user)
 
 @router.get("/{temp_id}", response_model=schemas.ShowTemplate)
-async def get_template(db: db_depend, temp_id: int):
-    return await template.get_template(db, temp_id)
+async def get_template(db: db_depend, temp_id: int, get_current_user: current_user):
+    return await template.get_template(db, temp_id, get_current_user)
 
 @router.delete("/")
 async def delete_template(db: db_depend, temp_id: int, get_current_user: current_user):

@@ -6,6 +6,8 @@ from .. import schemas
 from ..models import User, Map, Template, user_liked
 from ..hashing import Check
 from sqlalchemy import insert, select, func, update, delete
+from sqlalchemy.orm import selectinload
+
 
 
 db_depend = AsyncSession
@@ -17,25 +19,32 @@ async def create_template(db: db_depend, map_id: int, get_current_user):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Your map invalid!")
     map = await db.scalar(select(Map).where(Map.id == map_id))
-    if map.share:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Template already exists")
-    update_data = schemas.UpdateMap(share=True)
-    await update_map(db, map.id, update_data, get_current_user)
 
     temp_instance = Template(map_id=map_id)
     db.add(temp_instance)
     await db.commit()
-    await db.refresh(temp_instance)    
+    await db.refresh(temp_instance)   
 
-    return temp_instance
+    stmt = select(Template).options(selectinload(Template.maps)).where(Template.id == temp_instance.id)
+    result = await db.execute(stmt)
+    temp_instance_map = result.scalar_one() 
+
+    return temp_instance_map
 
 
-async def get_all_template(db: db_depend):
-    return await db.scalars(select(Template))
+async def get_all_template(db: db_depend, get_current_user):
+    stm = select(Template).options(selectinload(Template.maps))
+    result = await db.execute(stm)
+    temps = result.scalars().all()
+    for temp in temps:
+        if await Check().existing_check(db, user_liked, Template.maps.author == get_current_user.username):
+            temp.liked = True
 
 
-async def get_template(db: db_depend, temp_id: int):
+    return temps
+
+
+async def get_template(db: db_depend, temp_id: int, get_current_user):
     
     temp = await db.scalar(select(Template).where(Template.id == temp_id))   
     if not temp:
@@ -45,7 +54,7 @@ async def get_template(db: db_depend, temp_id: int):
 
 
 async def delete_template(db: db_depend, temp_id: int, get_current_user):
-
+    from .map import update_map 
     temp = await db.scalar(select(Template).where(Template.id == temp_id))    
     if not temp:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,

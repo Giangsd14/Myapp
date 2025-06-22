@@ -2,6 +2,8 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
 
+from sqlalchemy import false
+
 
 #Login
 class Login(BaseModel):
@@ -62,6 +64,7 @@ class CreateMap(BaseModel):
     desc: str
     img: str
     category: str
+    share: bool = False
 
 class Map(MapBase):
     id : int
@@ -100,10 +103,9 @@ class ShowPoint(CreatePoint):
     upd_at: datetime
 
 class UpdatePoint(BaseModel):
-    name: str
-    geom: str
-    desc: str
-    img: str
+    name: Optional[str] = None
+    desc: Optional[str] = None
+    img: Optional[str] = None
 
 
 #Template
@@ -113,4 +115,6 @@ class CreateTemplate(BaseModel):
 
 class ShowTemplate(CreateTemplate):
     no_like: int 
+    liked: bool = False
+    maps: ShowMap
     
