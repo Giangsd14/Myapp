@@ -33,24 +33,55 @@ async def create_template(db: db_depend, map_id: int, get_current_user):
 
 
 async def get_all_template(db: db_depend, get_current_user):
-    stm = select(Template).options(selectinload(Template.maps))
+    stm = select(Template).options(selectinload(Template.users), selectinload(Template.maps))
     result = await db.execute(stm)
-    temps = result.scalars().all()
-    for temp in temps:
-        if await Check().existing_check(db, user_liked, Template.maps.author == get_current_user.username):
-            temp.liked = True
+    templates = result.scalars().all()
 
+    templates_with_liked_flag = []
+    for temp in templates:
+        liked = any(user.user_name == get_current_user.username for user in temp.users)
 
-    return temps
+        temp_data = schemas.ShowTemplate(
+            id=temp.id,
+            map_id=temp.map_id,
+            no_like=temp.no_like,
+            maps=schemas.ShowMap.from_orm(temp.maps),  # Nếu 1-1
+            liked=liked
+        )
+        templates_with_liked_flag.append(temp_data)
+
+    return templates_with_liked_flag
 
 
 async def get_template(db: db_depend, temp_id: int, get_current_user):
-    
-    temp = await db.scalar(select(Template).where(Template.id == temp_id))   
+    stmt = (
+        select(Template)
+        .where(Template.id == temp_id)
+        .options(
+            selectinload(Template.maps),   
+            selectinload(Template.users)   
+        )
+    )
+    result = await db.execute(stmt)
+    temp = result.scalar_one_or_none()
+
     if not temp:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Your template invalid!")
-    return temp
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Your template invalid!"
+        )
+
+    liked = any(user.user_name == get_current_user.username for user in temp.users)
+
+    temp_data = schemas.ShowTemplate(
+        id=temp.id,
+        map_id=temp.map_id,
+        no_like=temp.no_like,
+        liked=liked,
+        maps=schemas.ShowMap.from_orm(temp.maps) 
+    )
+
+    return temp_data
 
 
 async def delete_template(db: db_depend, temp_id: int, get_current_user):

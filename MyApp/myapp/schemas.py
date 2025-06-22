@@ -77,6 +77,8 @@ class ShowMap(BaseModel):
     cre_at: datetime 
     upd_at: datetime 
     share: bool = False
+    class Config:
+        from_attributes = True
 
 class UpdateMap(BaseModel):
     name: Optional[str] = None
@@ -117,4 +119,10 @@ class ShowTemplate(CreateTemplate):
     no_like: int 
     liked: bool = False
     maps: ShowMap
+
+    model_config = {
+        "from_attributes": True
+    }
     
+class ShowTemplate2(CreateTemplate):
+    no_like: int 
