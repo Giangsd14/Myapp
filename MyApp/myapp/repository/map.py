@@ -36,7 +36,8 @@ async def create_map(
         share=share,
         img=image_url,
         author=user.user_name,
-        author_id=user.id
+        author_id=user.id,
+        owner=user.user_name
     )
 
     db.add(map_instance)
@@ -76,7 +77,8 @@ async def delete_map(db: db_depend, map_id: int, get_current_user):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Your map invalid!")
     map = await db.scalar(select(Map).where(Map.id == map_id))
-    await upload_image.delete_image(get_current_user, map.img)
+    if map.img:
+        await upload_image.delete_image(get_current_user, map.img)
     
     await db.delete(map)
     await db.commit()
