@@ -47,7 +47,7 @@ async def get_all_template(db: db_depend, get_current_user):
             id=temp.id,
             map_id=temp.map_id,
             no_like=temp.no_like,
-            maps=schemas.ShowMap.from_orm(temp.maps),  # Nếu 1-1
+            maps=schemas.ShowMap.from_orm(temp.maps),
             liked=liked
         )
         templates_with_liked_flag.append(temp_data)

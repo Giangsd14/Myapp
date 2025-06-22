@@ -3,7 +3,6 @@ from .. import schemas, database, oauth2
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..repository import template
-from typing import Optional
 
 
 router = APIRouter(

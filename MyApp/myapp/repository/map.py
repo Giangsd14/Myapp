@@ -36,8 +36,7 @@ async def create_map(
         share=share,
         img=image_url,
         author=user.user_name,
-        author_id=user.id,
-        owner=user.user_name
+        author_id=user.id
     )
 
     db.add(map_instance)
