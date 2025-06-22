@@ -8,4 +8,10 @@ class Settings:
     SECRET_KEY = os.getenv("SECRET_KEY")
     DEBUG = os.getenv("DEBUG", False)
 
+    # CORS
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "").split(",")
+
+    # Cloudinary
+    CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+
 settings = Settings()

@@ -1,11 +1,20 @@
 from passlib.context import CryptContext
+from sqlalchemy import select
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class Hash():
-    def bcrypt(password: str):
+    def bcrypt(self, password: str):
         return pwd_context.hash(password)
     
-    def verify(plain_password, hashed_password):
+    def verify(self, plain_password, hashed_password):
         return pwd_context.verify(plain_password, hashed_password)
+    
+class Check():
+    async def existing_check(self, db, table, where_clause) -> bool:
+        existing = await db.scalar(select(table).where(where_clause))
+        # print("-----------------------------------haha---------------------------")
+        # print(existing.__dict__)
+        return existing is not None
 

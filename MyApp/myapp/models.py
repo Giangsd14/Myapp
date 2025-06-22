@@ -1,8 +1,9 @@
 from __future__ import annotations
-from sqlalchemy import Column, ForeignKey, String, Table
+from sqlalchemy import Column, ForeignKey, String, Table, DateTime
 from .database import Base
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from datetime import datetime
+from datetime import datetime, timezone
+from typing import Optional
 
 
 
@@ -15,45 +16,56 @@ class BaseModel(Base):
 user_map = Table(
     "user_map",
     Base.metadata,
-    Column("user_id", ForeignKey("User.id"), primary_key=True),
-    Column("map_id", ForeignKey("Map.id"), primary_key=True)
+    Column("user_id", ForeignKey("User.id", ondelete="CASCADE"), primary_key=True),
+    Column("map_id", ForeignKey("Map.id", ondelete="CASCADE"), primary_key=True)
+)
+
+user_liked = Table(
+    "user_liked",
+    Base.metadata,
+    Column("user_id", ForeignKey("User.id", ondelete="CASCADE"), primary_key=True),
+    Column("temp_id", ForeignKey("Template.id", ondelete="CASCADE"), primary_key=True)
 )
 
 class User(BaseModel):
     __tablename__ = 'User'
 
-    user_name: Mapped[str] = mapped_column(String, index=True)
+    user_name: Mapped[str] = mapped_column(String, unique=True, index=True)
     user_pass: Mapped[str] = mapped_column(String, index=True)
-    email: Mapped[str] =mapped_column(String, index=True)
-    cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
+    cre_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
 
     maps: Mapped[list[Map]] = relationship(secondary=user_map, back_populates="users")
+    temps: Mapped[list[Template]] = relationship(secondary=user_liked, back_populates="users")
+    feedbacks: Mapped[list["Feedback"]] = relationship(back_populates="users", cascade="all, delete-orphan")
 
 
 class Map(BaseModel):
     __tablename__ = 'Map'
 
     author: Mapped[str] = mapped_column(String, index=True)
-    author_id: Mapped[int] = mapped_column(ForeignKey("User.id"), index=True)
+    author_id: Mapped[int] = mapped_column(ForeignKey("User.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String, index=True)
-    desc: Mapped[str] = mapped_column(String)
-    img: Mapped[str] = mapped_column(String)
-    cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    upd_at: Mapped[datetime] = mapped_column(nullable=True, default=None)
+    desc: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    img: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    category: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cre_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
+    upd_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     share: Mapped[bool] = mapped_column(default=False)
 
-    users: Mapped[list[User]] = relationship(secondary=user_map, back_populates="maps")
-    templates: Mapped[list[Template]] = relationship(back_populates="maps", uselist=False, cascade="all, delete-orphan")
-    points: Mapped[list[Point]] = relationship(back_populates="maps", uselist=False, cascade="all, delete-orphan")
+    users: Mapped[list[User]] = relationship(secondary=user_map, back_populates="maps", passive_deletes=True)
+    templates: Mapped[Template] = relationship(back_populates="maps", cascade="all, delete-orphan")
+    points: Mapped[list[Point]] = relationship(back_populates="maps", cascade="all, delete-orphan")
 
 
 class Template(BaseModel):
     __tablename__ = 'Template'
 
-    map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"), primary_key=True)
-    no_like: Mapped[int] = mapped_column(index=True)
+    map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"))
+    no_like: Mapped[int] = mapped_column(default=False)
 
-    maps: Mapped[list[Map]] = relationship(back_populates="templates")
+    maps: Mapped[Map] = relationship(back_populates="templates")
+    users: Mapped[list[User]] = relationship(secondary=user_liked, back_populates="temps", passive_deletes=True)
 
 
 class Point(BaseModel):
@@ -61,12 +73,20 @@ class Point(BaseModel):
 
     name: Mapped[str] = mapped_column(String, index=True)
     geom: Mapped[str] = mapped_column(String)
-    desc: Mapped[str] = mapped_column(String)
-    img: Mapped[str] = mapped_column(String)
-    cre_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    upd_at: Mapped[datetime] = mapped_column(nullable=True, default=None)
-    map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"), primary_key=True)
+    desc: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    img: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    cre_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
+    upd_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
+    map_id: Mapped[int] = mapped_column(ForeignKey("Map.id"))
 
     maps: Mapped[list[Map]] = relationship(back_populates="points")
+    
+class Feedback(BaseModel):
+    __tablename__ = 'Feedback'
 
+    user_id: Mapped[int] = mapped_column(ForeignKey("User.id"))
+    username: Mapped[str] = mapped_column(String)
+    desc: Mapped[str] = mapped_column(String)
+    star: Mapped[int] = mapped_column(default=5)
 
+    users: Mapped[User]  = relationship(back_populates="feedbacks")
