@@ -19,6 +19,9 @@ async def create_template(db: db_depend, map_id: int, get_current_user):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Your map invalid!")
     map = await db.scalar(select(Map).where(Map.id == map_id))
+    if not map.share:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Your map invalid!")
 
     temp_instance = Template(map_id=map_id)
     db.add(temp_instance)
