@@ -33,11 +33,3 @@ async def delete_template(db: db_depend, temp_id: int, get_current_user: current
 @router.post("/like", response_model=schemas.ShowTemplate2)
 async def like_template(db: db_depend, temp_id: int, get_current_user: current_user):
     return await template.like_template(db, temp_id, get_current_user)
-
-@router.post("/template/{temp_id}/copy", response_model=schemas.ShowMap)
-async def copy_template(
-    temp_id: int,
-    db: db_depend,
-    get_current_user: current_user,
-):
-    return await copy_template(db, temp_id, get_current_user)

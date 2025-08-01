@@ -6,7 +6,6 @@ from ..models import User, Map, Template, user_liked
 from ..hashing import Check
 from sqlalchemy import insert, select, func, update, delete
 from sqlalchemy.orm import selectinload
-from datetime import datetime, timezone
 
 
 
@@ -137,31 +136,5 @@ async def like_template(db: db_depend, temp_id: int, get_current_user):
         await db.rollback()
         raise HTTPException(status_code=500, detail="Something went wrong!")
 
-
-async def copy_template(db: db_depend, temp_id: int, get_current_user):
-    temp = await db.scalar(
-        select(Template).options(selectinload(Template.maps)).where(Template.id == temp_id)
-    )
-    if not temp:
-        raise HTTPException(status_code=404, detail="Template not found")
-
-    origin_map = temp.maps
-    if not origin_map:
-        raise HTTPException(status_code=404, detail="Original map not found")
-
-    copied_map = Map(
-        name=get_current_user.username,
-        desc=origin_map.desc,
-        category=origin_map.category,
-        share=False,
-        img=origin_map.img,
-        author_id=get_current_user.id,
-        cre_at=datetime.now(timezone.utc),
-        upd_at=datetime.now(timezone.utc),
-    )
-
-    db.add(copied_map)
-    await db.commit()
-    await db.refresh(copied_map)
-
-    return copied_map 
+# async def copy_template(db: db_depend, temp_id: int, get_current_user):
+#     temp = await db.scalar(select(Template).where(Template.id == temp_id))
