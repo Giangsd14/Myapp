@@ -13,48 +13,32 @@ from typing import Optional
 db_depend = AsyncSession
 
 
-async def create_map(
-    db: db_depend,
-    name: str,
-    desc: Optional[str],
-    category: Optional[str],
-    share: bool,
-    img: Optional[UploadFile],
-    get_current_user
-):
+async def create_map(db: db_depend, data: schemas.CreateMap, get_current_user):
     user = await db.scalar(select(User).where(User.user_name == get_current_user.username))
 
-    image_url = None
-    if img:
-        image_url = await upload_image.upload_image(get_current_user, img)
-        image_url = image_url.get("url")
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials!")
 
-    map_instance = Map(
-        name=name,
-        desc=desc,
-        category=category,
-        share=share,
-        img=image_url,
-        author=user.user_name,
-        author_id=user.id
-    )
+    map_instance = Map(**data.model_dump())
+    map_instance.author = user.user_name
+    map_instance.author_id = user.id
 
     db.add(map_instance)
     await db.commit()
     await db.refresh(map_instance)    
 
-    stmt_user = select(User).options(selectinload(User.maps)).where(User.id == map_instance.author_id)
-    result = await db.execute(stmt_user)
-    user = result.scalar_one()
+    # stmt_user = select(User).options(selectinload(User.maps)).where(User.id == map_instance.author_id)
+    # result = await db.execute(stmt_user)
+    # user = result.scalar_one()
 
-    if user:
-        user.maps.append(map_instance)
-        db.add(user)
-        await db.commit()
+    # if user:
+    #     user.maps.append(map_instance)
+    #     db.add(user)
+    #     await db.commit()
 
     if map_instance.share:
         from .template import create_template
-        return await create_template(db, map_instance.id, get_current_user)
+        await create_template(db, map_instance.id, get_current_user)
     
     return map_instance
     
@@ -107,11 +91,15 @@ async def update_map(db: db_depend, map_id: int, data: schemas.UpdateMap, get_cu
     else:
         if map_new == True:
             from .template import create_template
-            return await create_template(db, map.id, get_current_user)
-        else:
-            from .template import delete_template
-            delete_template = await delete_template(db, map.templates[0].id, get_current_user)
-            if not delete_template:
+            created_template = await create_template(db, map.id, get_current_user)
+            if not created_template:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Your template invalid!")
-            raise HTTPException(status_code=200, detail="Template deleted!")
+            return map
+        else:
+            from .template import delete_template
+            deletes_template = await delete_template(db, map.templates.id, get_current_user)
+            if not deletes_template:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Your template invalid!")
+            return map

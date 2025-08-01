@@ -62,7 +62,7 @@ class MapBase(BaseModel):
 class CreateMap(BaseModel):
     name: str
     desc: Optional[str] = None
-    img: Optional[str] = None
+    # img: Optional[str] = None
     category: Optional[str] = None
     share: bool = False
 
@@ -95,7 +95,7 @@ class Like_Map(BaseModel):
 
 #Point
 class CreatePoint(BaseModel):
-    map_id: int
+    # map_id: int
     name: str
     geom: str
     desc: Optional[str] = None
