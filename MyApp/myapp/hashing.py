@@ -14,7 +14,5 @@ class Hash():
 class Check():
     async def existing_check(self, db, table, where_clause) -> bool:
         existing = await db.scalar(select(table).where(where_clause))
-        # print("-----------------------------------haha---------------------------")
-        # print(existing.__dict__)
         return existing is not None
 
